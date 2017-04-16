@@ -1,0 +1,115 @@
+package com.example.rehans.streetsafe;
+
+import android.app.ProgressDialog;
+import android.content.Intent;
+import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+import android.text.TextUtils;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+
+public class Creat_account extends AppCompatActivity implements View.OnClickListener{
+
+    private Button buttonSignUp;
+    private EditText editTextName;
+    private EditText editTextEmail;
+
+    private EditText editTextMobile;
+    private EditText editTextBirthday;
+    private EditText editTextNewPassword;
+
+    private ProgressDialog progressDialog;
+    private FirebaseAuth firebaseAuth;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_creat_account);
+
+        progressDialog = new ProgressDialog(this);
+        firebaseAuth = FirebaseAuth.getInstance();
+
+        buttonSignUp = (Button)findViewById(R.id.buttonSignUp);
+        editTextName = (EditText) findViewById(R.id.editTextName);
+        editTextEmail = (EditText) findViewById(R.id.editTextEmail);
+        editTextBirthday = (EditText) findViewById(R.id.editTextBirthday);
+        editTextMobile = (EditText) findViewById(R.id.editTextMobilenumber);
+        editTextNewPassword =(EditText) findViewById(R.id.editTextNewPassword);
+
+        buttonSignUp.setOnClickListener(this);
+
+        if(firebaseAuth.getCurrentUser() != null){
+            finish();
+            startActivity(new Intent(getApplicationContext(),Profile.class));
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        if(v == buttonSignUp){
+            CreatAccount();
+        }
+    }
+
+    private void CreatAccount() {
+        String name = editTextName.getText().toString().trim();
+        String email = editTextEmail.getText().toString().trim();
+        String birthday = editTextEmail.getText().toString().trim();
+        String mobileNumber = editTextEmail.getText().toString().trim();
+        String newPasssword = editTextNewPassword.getText().toString().trim();
+
+        if(TextUtils.isEmpty(name)){
+            // name is empty
+            Toast.makeText(this,"Please fill Name",Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if(TextUtils.isEmpty(email)){
+            // password is empty
+            Toast.makeText(this,"Please fill Email",Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if(TextUtils.isEmpty(birthday)){
+            // password is empty
+            Toast.makeText(this,"Please fill Birthday",Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if(TextUtils.isEmpty(mobileNumber)){
+            // password is empty
+            Toast.makeText(this,"Please fill Mobile Number",Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if(TextUtils.isEmpty(newPasssword)){
+            // password is empty
+            Toast.makeText(this,"Please fill Password",Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        progressDialog.setMessage("Loading");
+        progressDialog.show();
+
+        firebaseAuth.createUserWithEmailAndPassword(email,newPasssword)
+                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        progressDialog.dismiss();
+                        if(task.isSuccessful()){
+                            finish();
+                            startActivity(new Intent(getApplicationContext(),Profile.class));
+                        }
+                    }
+                });
+
+    }
+}
